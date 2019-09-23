@@ -48,7 +48,6 @@ min_loss = 999999999
 min_epoch = 0
 no_update = 0  # 有多少轮未更新最佳网络
 LR_flag = 0
-temple_loss = 0
 start_time = time.time()
 # 开始训练
 print("\nstart to train!")
@@ -56,6 +55,7 @@ for epoch in range(EPOCH):
     index = 0
     train_epo_loss = 0
     validation_epo_loss = 0
+    temple_loss = 0
     for input_image in train_data_loader:
         saving_index += 1
         index += 1
@@ -68,10 +68,10 @@ for epoch in range(EPOCH):
         train_epo_loss += iter_loss
         optimizer.step()
         # 在这里建一个progressbar
-        if np.mod(index, 100) == 0:
+        if np.mod(index, 32) == 0:
             print('epoch %d, %03d/%d, loss=%.5f' % (
                 epoch + 1, index, len(train_data_loader), iter_loss))
-            print_time(start_time, index, EPOCH, len(train_data_loader), (train_epo_loss - temple_loss) / 100)
+            print_time(start_time, index, EPOCH, len(train_data_loader), (train_epo_loss - temple_loss) / 32)
             temple_loss = train_epo_loss
 
     # 验证集的损失计算
