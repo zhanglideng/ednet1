@@ -27,7 +27,7 @@ def init_excel():
     workbook = xlwt.Workbook()
     sheet1 = workbook.add_sheet('loss', cell_overwrite_ok=True)
     # 通过excel保存训练结果（训练集验证集loss，学习率，训练时间，总训练时间）
-    row0 = ["epoch", "progress", "loss", "LR"]
+    row0 = ["epoch", "train", "validation", "LR"]
     for i in range(0, len(row0)):
         sheet1.write(0, i, row0[i], set_style('Times New Roman', 220, True))
     return workbook, sheet1

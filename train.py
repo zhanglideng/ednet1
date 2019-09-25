@@ -13,8 +13,8 @@ import time
 import xlwt
 
 LR = 0.001
-EPOCH = 300
-BATCH_SIZE = 4
+EPOCH = 1000
+BATCH_SIZE = 8
 excel_line = 1
 train_path = './data/train/'
 validation_path = './data/validation/'
@@ -70,8 +70,8 @@ for epoch in range(EPOCH):
         # 在这里建一个progressbar
         if np.mod(index, 32) == 0:
             print('epoch %d, %03d/%d, loss=%.5f' % (
-                epoch + 1, index, len(train_data_loader), iter_loss))
-            print_time(start_time, index, EPOCH, len(train_data_loader), (train_epo_loss - temple_loss) / 32)
+                epoch + 1, index, len(train_data_loader), (train_epo_loss - temple_loss) / 32))
+            print_time(start_time, index, EPOCH, len(train_data_loader), epoch)
             temple_loss = train_epo_loss
 
     # 验证集的损失计算
@@ -104,9 +104,9 @@ for epoch in range(EPOCH):
     else:
         print('not improve for epoch %d with %.5f' % (min_epoch, min_loss))
         no_update += 1
-        if no_update >= 50:
+        if no_update >= 500:
             break
-        if no_update - LR_flag >= 5:
+        if no_update - LR_flag >= 20:
             LR = LR * 0.9
             LR_flag = no_update
     print('learning rate is ' + str(LR) + '\n')

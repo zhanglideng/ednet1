@@ -10,7 +10,7 @@ def print_time(start, progress, epoch, total, n_epoch):
     :param n_epoch: 当前第几轮
     需要打印，到目前为止已经花费的时间，训练结束需要的时间。
     """
-    print("start:%d\nprogress:%d\nepoch:%d\ntotal:%d\nn_epoch:%d\n", start, progress, epoch, total, n_epoch)
+    # print("start:%d\nprogress:%d\nepoch:%d\ntotal:%d\nn_epoch:%d\n", start, progress, epoch, total, n_epoch)
     now = time.time()
     epoch_time = now - start
     etr_time = (now - start) / (n_epoch * total + progress) * epoch * total - epoch_time
