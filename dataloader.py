@@ -32,7 +32,7 @@ class EdDataSet(Dataset):
 
 if __name__ == '__main__':
     train_path = './data/train/'
-    validation_path = './data/validation/'
+    validation_path = './data/val/'
     test_path = './data/test/'
     transform = transforms.Compose([transforms.ToTensor(),
                                     transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])

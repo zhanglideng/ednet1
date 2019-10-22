@@ -1,8 +1,14 @@
 <component name="ProjectDictionaryState">
   <dictionary name="random">
     <words>
+      <w>conv</w>
+      <w>deconv</w>
       <w>dehazy</w>
+      <w>maxpool</w>
       <w>nepoch</w>
+      <w>relu</w>
+      <w>resblock</w>
+      <w>ssim</w>
     </words>
   </dictionary>
 </component>

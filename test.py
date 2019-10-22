@@ -14,7 +14,7 @@ import cv2
 from ED_model import CNN
 import torch
 
-test_path = './data/train/'
+test_path = './data/test/'
 BATCH_SIZE = 1
 
 

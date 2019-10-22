@@ -8,23 +8,24 @@ from utils.loss import *
 from utils.print_time import *
 from utils.save_log_to_excel import *
 from dataloader import EdDataSet
-from ED_model import CNN
+from Res_ED_model import CNN
 import time
 import xlwt
+from utils.ssim import *
 
 LR = 0.001
-EPOCH = 1000
-BATCH_SIZE = 8
+EPOCH = 10
+BATCH_SIZE = 1
 excel_line = 1
-train_path = './data/train/'
-validation_path = './data/validation/'
+train_path = './data/mini_train/'
+validation_path = './data/mini_val/'
 save_path = './checkpoints/best_cnn_model.pt'
 excel_save = './result.xls'
 
 # 初始化excel
 f, sheet = init_excel()
 # 加载模型
-net = CNN()
+net = CNN(64)
 net = net.cuda()
 print(net)
 
@@ -63,6 +64,7 @@ for epoch in range(EPOCH):
         optimizer.zero_grad()
         output_image = net(input_image)
         loss = l2_loss(output_image, input_image)
+        # +ssim_loss(output_image, input_image)
         loss.backward()
         iter_loss = loss.item()
         train_epo_loss += iter_loss
@@ -80,6 +82,7 @@ for epoch in range(EPOCH):
             input_image = input_image.cuda()
             output_image = net(input_image)
             loss = l2_loss(output_image, input_image)
+            # + ssim_loss(output_image, input_image)
             iter_loss = loss.item()
             validation_epo_loss += iter_loss
     train_epo_loss = train_epo_loss / len(train_data_loader)
