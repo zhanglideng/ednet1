@@ -11,7 +11,7 @@ from dataloader import EdDataSet
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import cv2
-from ED_model import CNN
+from Res_ED_model import CNN
 import torch
 
 test_path = './data/test/'

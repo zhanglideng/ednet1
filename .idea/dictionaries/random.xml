@@ -6,6 +6,7 @@
       <w>dehazy</w>
       <w>maxpool</w>
       <w>nepoch</w>
+      <w>psnr</w>
       <w>relu</w>
       <w>resblock</w>
       <w>ssim</w>

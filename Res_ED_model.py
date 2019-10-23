@@ -50,29 +50,43 @@ class CNN(nn.Module):
 
     def forward(self, x):
         # 当中有个3D卷积的步骤，考虑一下
+        # print(x.shape)
         x = self.relu(self.conv1(x))
+        # print(x.shape)
         x = self.relu(self.conv2(x))
+        # print(x.shape)
         x1 = self.d_res_block(x)
+        # print(x1.shape)
         x1 = self.d_res_block(x1)
         x1 = self.d_res_block(x1)
         x1 = self.d_res_block(x1)
         x1 = self.d_res_block(x1)
         x1 = x1 + x
+        # print(x1.shape)
         x2 = self.conv3(x1)
+        # print(x2.shape)
         indices_map = torch.LongTensor([self.k]).cuda()
         indices_feature = torch.LongTensor([i for i in range(self.k)]).cuda()
         # attention map
         attention_map = torch.index_select(x2, 1, indices_map)
+        # print(attention_map.shape)
         x2 = torch.index_select(x2, 1, indices_feature)
+        # print(x2.shape)
         x2.mul(attention_map)
+        # print(x2.shape)
         # 解码器部分
         x2 = self.relu(self.deconv1(x2))
+        # print(x2.shape)
         x3 = self.d_res_block(x2)
+        # print(x3.shape)
         x3 = self.d_res_block(x3)
         x3 = self.d_res_block(x3)
         x3 = self.d_res_block(x3)
         x3 = self.d_res_block(x3)
         x3 = x3 + x2
+        # print(x3.shape)
         x3 = self.relu(self.deconv2(x3))
+        # print(x3.shape)
         x3 = self.relu(self.deconv3(x3))
+        # print(x3.shape)
         return x3
