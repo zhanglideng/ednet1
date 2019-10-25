@@ -25,9 +25,12 @@ class EdDataSet(Dataset):
         """
         image_name = self.data_list[idx]
         image_data = cv2.imread(self.path + '/' + image_name)
+        print(image_name)
         if self.transforms:
             image_data = self.transforms(image_data)
-        return image_data
+        item = {'name': image_name, 'input_image': image_data}
+        print(item)
+        return item
 
 
 if __name__ == '__main__':

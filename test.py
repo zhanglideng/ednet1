@@ -48,9 +48,12 @@ print(">>Start testing...\n")
 
 avg_elapsed_time = 0.0
 count = 0
-for input_image in test_data_loader:
+for item in test_data_loader:
+    image_name = str(item['name'])
+    input_image = item['input_image']
     count += 1
     print(">>Processing ./{}".format(str(count)))
+    print(image_name)
     with torch.no_grad():
         net = net.cuda()
         # net.train(False)
@@ -64,8 +67,7 @@ for input_image in test_data_loader:
         avg_elapsed_time += elapsed_time
     output_image = output_image.cpu()
     im_output_for_save = get_image_for_save(output_image)
-    filename = str(count) + '.png'
-    cv2.imwrite(os.path.join(save_path, filename), im_output_for_save)
+    cv2.imwrite(os.path.join(save_path, image_name), im_output_for_save)
 
 print(">>Finished!"
       "It takes average {}s for processing single image\n"

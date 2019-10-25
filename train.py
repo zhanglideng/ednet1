@@ -61,13 +61,14 @@ for epoch in range(EPOCH):
     validation_epo_loss = 0
     l2_loss_excel = 0
     ssim_loss_excel = 0
-    for input_image in train_data_loader:
+    for item in train_data_loader:
         index += 1
         itr += 1
+        input_image = item['input_image']
         input_image = input_image.cuda()
         output_image = net(input_image)
         # loss = alpha * ssim_loss(output_image, input_image) + l2_loss(output_image, input_image)
-        loss = ssim_loss(output_image, input_image)
+        loss = l2_loss(output_image, input_image)
         l2_loss_excel += l2_loss(output_image, input_image).item()
         ssim_loss_excel += ssim_loss(output_image, input_image).item()
         # loss.backward()
@@ -118,7 +119,8 @@ for epoch in range(EPOCH):
     val_ssim_loss = 0
     val_l2_loss = 0
     with torch.no_grad():
-        for input_image in validation_data_loader:
+        for item in validation_data_loader:
+            input_image = item['input_image']
             input_image = input_image.cuda()
             output_image = net(input_image)
             val_ssim_loss += ssim_loss(output_image, input_image).item()
@@ -131,7 +133,7 @@ for epoch in range(EPOCH):
     val_ssim = val_ssim / len(validation_data_loader)
     val_psnr = val_psnr / len(validation_data_loader)
     print('\nepoch %d train loss = %.5f' % (epoch + 1, train_epo_loss))
-    print('epoch %d validation loss = %.5f' % (epoch + 1, alpha * val_ssim_loss))
+    print('epoch %d validation loss = %.5f' % (epoch + 1, val_l2_loss))
     print('the val psnr is %f dB' % val_psnr)
     print('the val ssim is %f ' % val_ssim)
     # val=["EPOCH", "L2_LOSS", "SSIM_LOSS", "LOSS", "PSNR", "SSIM", "LR"]
@@ -149,8 +151,8 @@ for epoch in range(EPOCH):
                                  lr=LR)
     f.save(excel_save)
     # if alpha * val_ssim_loss + val_l2_loss < min_loss:
-    if alpha * val_ssim_loss < min_loss:
-        min_loss = alpha * val_ssim_loss
+    if val_l2_loss < min_loss:
+        min_loss = alpha * val_l2_loss
         min_epoch = epoch
         torch.save(net, save_path)
         print('saving the epoch %d model with %.5f' % (epoch + 1, min_loss))
