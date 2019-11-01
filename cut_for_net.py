@@ -1,16 +1,22 @@
 import cv2
 import os
 
-path = ['./data/train/', './data/val/', './data/test/']
+path = ['./data/unlabeled2017/']
+new_path = ['./data/new_unlabeled/']
 count = 0
-for i in path:
-    data_list = os.listdir(i)
+
+for i in range(len(path)):
+    if not os.path.exists(new_path[i]):
+        os.makedirs(new_path[i])
+    data_list = os.listdir(path[i])
     for j in data_list:
         count = count + 1
-        if count % 200 == 0:
+        if count % 500 == 0:
             print('count=' + str(count))
-        image = cv2.imread(i + j)
-        height_re = image.shape[0] % 8
-        width_re = image.shape[1] % 8
-        image = image[0:image.shape[0] - height_re, 0:image.shape[1] - width_re]
-        cv2.imwrite(i + j, image)
+        image = cv2.imread(path[i] + j)
+        print(image.shape)
+        if image.shape[0] >= 400 and image.shape[1] >= 400:
+            image = image[0:400, 0:400]
+            print(image.shape)
+            print(new_path[i] + j)
+            cv2.imwrite(new_path[i] + j, image)
