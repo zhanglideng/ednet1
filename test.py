@@ -19,11 +19,16 @@ from utils.PSNR_SSIM import *
 
 test_path = './data/test/'
 BATCH_SIZE = 1
+mean = [0.489, 0.490, 0.491]
+std = [0.312, 0.312, 0.312]
 
 
 def get_image_for_save(img):
     img = img.numpy()
     img = np.squeeze(img)
+    print(img.shape)
+    # for i in range(3):
+    #    img[i] = img[i] * std[i] + mean[i]
     img = img * 255
     img[img < 0] = 0
     img[img > 255] = 255
@@ -39,7 +44,7 @@ if not os.path.exists(save_path):
 model_path = './checkpoints/best_cnn_model.pt'
 net = torch.load(model_path)
 transform = transforms.Compose([transforms.ToTensor()])
-test_data = EdDataSet(transform, test_path)
+test_data = EdDataSet(transform, test_path, batch_size=BATCH_SIZE)
 test_data_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 print(">>Start testing...\n")
 
@@ -47,25 +52,44 @@ avg_elapsed_time = 0.0
 count = 0
 avg_l2_loss = 0
 avg_ssim_loss = 0
-for input_image in test_data_loader:
+for input_image, gt_image in test_data_loader:
     count += 1
-    print(">>Processing ./{}".format(str(count)))
+    if count % 1000 == 0:
+        print(">>Processing ./{}".format(str(count)))
+        print("the average L2 loss is {}\n"
+              "the average SSIM loss is {}\n".format(avg_l2_loss / (count * BATCH_SIZE),
+                                                     avg_ssim_loss / (count * BATCH_SIZE)))
+    # print(input_image[0][0][0])
     # print(input_image)
     with torch.no_grad():
         net = net.cuda()
         # net.train(False)
         # net.eval()
         # 上面这两句话到底有什么问题
+        print(">>Processing ./{}".format(str(count)))
+        input_image = input_image.repeat(10, 1, 1, 1)
+        gt_image = gt_image.repeat(10, 1, 1, 1)
+        print(input_image.shape)
+        print(gt_image.shape)
         input_image = input_image.cuda()
+        gt_image = gt_image.cuda()
         start_time = time.time()
         output_image = net(input_image)
-        avg_l2_loss += l2_loss(output_image, input_image).item()
-        avg_ssim_loss += ssim_loss(output_image, input_image).item()
+        l2 = l2_loss(output_image, gt_image).item()
+        ssim = ssim_loss(output_image, gt_image).item()
+        # print('l2 = %f' % l2)
+        # print('ssim = %f' % ssim)
+        avg_l2_loss += l2
+        avg_ssim_loss += ssim
         elapsed_time = time.time() - start_time
         avg_elapsed_time += elapsed_time
-    if count <= 4:
+        print('avg_l2_loss = %f' % (avg_l2_loss / count))
+        print('avg_ssim_loss = %f' % (avg_ssim_loss / count))
+
+    if count <= 5:
         output_image = output_image.cpu()
-        im_output_for_save = get_image_for_save(output_image)
+        # print(">>Processing ./{}".format(str(count)))
+        im_output_for_save = get_image_for_save(output_image[0])
         filename = str(count) + '.png'
         cv2.imwrite(os.path.join(save_path, filename), im_output_for_save)
 

@@ -1,12 +1,12 @@
 import torch
-from pytorch_ssim._init_ import *
+from utils.ssim import *
 
 
 def l2_loss(input_image, output_image):
-    return torch.mean(torch.pow((input_image - output_image), 2))
+    l1_loss_fn = torch.nn.L1Loss(reduction='mean')
+    return l1_loss_fn(input_image, output_image)
 
 
 def ssim_loss(input_image, output_image):
-    loss = SSIM()
-    return 1 - loss(input_image, output_image)
-    # return -1 * torch.log(loss(input_image, output_image))
+    losser = MS_SSIM(data_range=1.).cuda()
+    return 1 - losser(input_image, output_image).mean()

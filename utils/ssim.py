@@ -6,6 +6,7 @@ https://github.com/VainF/pytorch-msssim/blob/master/pytorch_msssim/ssim.py
 import torch
 import torch.jit
 import torch.nn.functional as F
+import cv2
 
 
 @torch.jit.script
@@ -47,7 +48,7 @@ def _gaussian_filter(x, window_1d, use_padding: bool):
 
 
 @torch.jit.script
-def ssim(X, Y, window, data_range: float, use_padding: bool=False):
+def ssim(X, Y, window, data_range: float, use_padding: bool = False):
     '''
     Calculate ssim index for X and Y
     :param X: images
@@ -78,7 +79,6 @@ def ssim(X, Y, window, data_range: float, use_padding: bool=False):
     sigma1_sq = compensation * (sigma1_sq - mu1_sq)
     sigma2_sq = compensation * (sigma2_sq - mu2_sq)
     sigma12 = compensation * (sigma12 - mu1_mu2)
-
     cs_map = (2 * sigma12 + C2) / (sigma1_sq + sigma2_sq + C2)
     ssim_map = ((2 * mu1_mu2 + C1) / (mu1_sq + mu2_sq + C1)) * cs_map
 
@@ -89,7 +89,7 @@ def ssim(X, Y, window, data_range: float, use_padding: bool=False):
 
 
 @torch.jit.script
-def ms_ssim(X, Y, window, data_range: float, weights, use_padding: bool=False):
+def ms_ssim(X, Y, window, data_range: float, weights, use_padding: bool = False):
     '''
     interface of ms-ssim
     :param X: a batch of images, (N,C,H,W)
@@ -143,7 +143,8 @@ class SSIM(torch.jit.ScriptModule):
 class MS_SSIM(torch.jit.ScriptModule):
     __constants__ = ['data_range', 'use_padding']
 
-    def __init__(self, window_size=11, window_sigma=1.5, data_range=255., channel=3, use_padding=False, weights=None, levels=None):
+    def __init__(self, window_size=11, window_sigma=1.5, data_range=255., channel=3, use_padding=False, weights=None,
+                 levels=None):
         '''
         class for ms-ssim
         :param window_size: the size of gauss kernel
@@ -179,6 +180,57 @@ class MS_SSIM(torch.jit.ScriptModule):
 
 
 if __name__ == '__main__':
+    img1 = torch.from_numpy(cv2.imread('/input/ednet/1.png'))
+    img1 = torch.tensor(img1, dtype=torch.float32)
+
+    img2 = torch.from_numpy(cv2.imread('/input/ednet/2.png')).to(torch.double)
+    img2 = torch.tensor(img2, dtype=torch.float32)
+
+    gth1 = torch.from_numpy(cv2.imread('/input/ednet/000000000001.jpg')).to(torch.double)
+    gth1 = torch.tensor(gth1, dtype=torch.float32)
+
+    gth2 = torch.from_numpy(cv2.imread('/input/ednet/000000000016.jpg')).to(torch.double)
+    gth2 = torch.tensor(gth2, dtype=torch.float32)
+
+    img1 = torch.transpose(img1, 0, 2)
+    gth1 = torch.transpose(gth1, 0, 2)
+    img2 = torch.transpose(img2, 0, 2)
+    gth2 = torch.transpose(gth2, 0, 2)
+    img1 = img1.unsqueeze(0).cuda()
+    gth1 = gth1.unsqueeze(0).cuda()
+    img2 = img2.unsqueeze(0).cuda()
+    gth2 = gth2.unsqueeze(0).cuda()
+
+    losser = SSIM(data_range=1.).cuda()
+    loss = losser(gth1, img1).mean()
+
+    losser2 = MS_SSIM(data_range=1.).cuda()
+    loss2 = losser2(img1, gth1).mean()
+
+    print(loss.item())
+    print(loss2.item())
+
+    losser = SSIM(data_range=1.).cuda()
+    loss = losser(img2, gth2).mean()
+
+    losser2 = MS_SSIM(data_range=1.).cuda()
+    loss2 = losser2(img2, gth2).mean()
+
+    print(loss.item())
+    print(loss2.item())
+
+    img3 = torch.cat([img1, img2], dim=0)
+    gth3 = torch.cat([gth1, gth2], dim=0)
+
+    print(img3.shape)
+    duidie_ssim = SSIM(data_range=1.).cuda()
+    loss = duidie_ssim(img3, gth3).mean()
+    duidie_msssim = MS_SSIM(data_range=1.).cuda()
+    loss1 = duidie_msssim(img3, gth3).mean()
+
+    print(loss.item())
+    print(loss1.item())
+    '''
     print('Simple Test')
     im = torch.randint(0, 255, (5, 3, 256, 256), dtype=torch.float, device='cuda')
     img1 = im / 255
@@ -350,3 +402,4 @@ if __name__ == '__main__':
 
     print('cuda time', start_record.elapsed_time(end_record))
     print('perf_counter time', end_time-start_time)
+'''

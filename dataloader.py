@@ -21,9 +21,11 @@ import scipy.io as sio
 
 
 class EdDataSet(Dataset):
-    def __init__(self, transforms, path):
+    def __init__(self, transform1, path, batch_size):
         print(path)
-        self.transforms = transforms
+        self.transform = transform1
+        self.batch_size = batch_size
+        # self.transform2 = transform2
         # 读取无雾图
         self.path = path
         self.data_list = os.listdir(path)
@@ -37,15 +39,22 @@ class EdDataSet(Dataset):
             need dehazy image
         """
         image_name = self.data_list[idx]
+        # print(image_name)
         image_data = cv2.imread(self.path + '/' + image_name)
         # print(image_data)
         # print(image_name)
-        if self.transforms:
-            image_data = self.transforms(image_data)
+        if self.transform:
+            input_data = self.transform(image_data)
+        else:
+            input_data = image_data
+        if self.transform:
+            gt_data = self.transform(image_data)
+        else:
+            gt_data = image_data
         # item = {'name': image_name, 'input_image': image_data}
         # print(item)
         # print(image_data)
-        return image_data
+        return input_data, gt_data
 
 
 if __name__ == '__main__':
