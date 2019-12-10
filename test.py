@@ -18,7 +18,7 @@ from utils.ssim import *
 from utils.PSNR_SSIM import *
 
 test_path = './cut_test/'
-BATCH_SIZE = 8
+BATCH_SIZE = 10
 mean = [0.489, 0.490, 0.491]
 std = [0.312, 0.312, 0.312]
 
