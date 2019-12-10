@@ -1,8 +1,8 @@
 import cv2
 import os
 
-path = ['./data/unlabeled2017/']
-new_path = ['./data/new_unlabeled/']
+path = ['./test/']
+new_path = ['./cut_test/']
 count = 0
 
 for i in range(len(path)):
