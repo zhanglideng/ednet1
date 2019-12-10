@@ -11,7 +11,7 @@ from dataloader import EdDataSet
 from Res_ED_model import CNN
 import time
 import xlwt
-from utils.ssim import *
+from utils.ms_ssim import *
 from utils.PSNR_SSIM import *
 import os
 
@@ -41,10 +41,10 @@ def adjust_learning_rate(op, i):
 # 初始化excel
 f, sheet_train, sheet_val = init_excel()
 # 加载模型
-if not os.path.exists(save_path):
-    net = CNN(64)
-else:
-    net = torch.load(save_path)
+# if not os.path.exists(save_path):
+net = CNN(64)
+# else:
+#    net = torch.load(save_path)
 net = net.cuda()
 
 print(net)

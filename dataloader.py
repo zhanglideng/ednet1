@@ -42,7 +42,7 @@ class EdDataSet(Dataset):
         # print(image_name)
         image_data = cv2.imread(self.path + '/' + image_name)
         # print(image_data)
-        print(image_name)
+        # print(image_name)
         if self.transform:
             input_data = self.transform(image_data)
         else:
