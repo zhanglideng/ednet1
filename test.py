@@ -36,11 +36,11 @@ def get_image_for_save(img):
     img = img.astype('uint8')
     return img
 
-
+'''
 save_path = 'result_{}'.format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 if not os.path.exists(save_path):
     os.makedirs(save_path)
-
+'''
 model_path = './checkpoints/best_cnn_model.pt'
 net = torch.load(model_path)
 transform = transforms.Compose([transforms.ToTensor()])
