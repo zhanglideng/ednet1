@@ -12,7 +12,6 @@ from Res_ED_model import CNN
 import time
 import xlwt
 from utils.ms_ssim import *
-from utils.PSNR_SSIM import *
 import os
 
 LR = 0.004  # 学习率
@@ -82,7 +81,7 @@ for epoch in range(EPOCH):
         itr += 1
         input_image = input_image.cuda()
         gt_image = gt_image.cuda()
-        output_image = net(input_image)
+        output_image, scene_feature = net(input_image)
         l2 = l2_loss(output_image, gt_image)
         ssim = ssim_loss(output_image, gt_image)
         loss = ssim
@@ -116,8 +115,6 @@ for epoch in range(EPOCH):
                                            l2_loss=l2_loss_excel / itr_to_excel,
                                            ssim_loss=ssim_loss_excel / itr_to_excel,
                                            loss=(alpha * ssim_loss_excel + l2_loss_excel) / itr_to_excel,
-                                           psnr=False,
-                                           ssim=False,
                                            lr=LR * (0.90 ** (itr // itr_to_lr)))
             f.save(excel_save)
             l2_loss_excel = 0
@@ -125,8 +122,6 @@ for epoch in range(EPOCH):
     optimizer.step()
     optimizer.zero_grad()
     # 验证集的损失计算
-    val_ssim = 0
-    val_psnr = 0
     val_ssim_loss = 0
     val_l2_loss = 0
     with torch.no_grad():
@@ -135,20 +130,14 @@ for epoch in range(EPOCH):
             # input_image = item['input_image']
             input_image = input_image.cuda()
             gt_image = gt_image.cuda()
-            output_image = net(input_image)
+            output_image, scene_feature = net(input_image)
             val_ssim_loss += ssim_loss(output_image, gt_image).item()
             val_l2_loss += l2_loss(output_image, gt_image).item()
-            val_ssim = val_ssim + ssim(output_image, gt_image).item()
-            val_psnr = val_psnr + psnr(output_image, gt_image).item()
     train_epo_loss = train_epo_loss / len(train_data_loader)
     val_ssim_loss = val_ssim_loss / len(validation_data_loader)
     val_l2_loss = val_l2_loss / len(validation_data_loader)
-    val_ssim = val_ssim / len(validation_data_loader)
-    val_psnr = val_psnr / len(validation_data_loader)
     print('\nepoch %d train loss = %.5f' % (epoch + 1, train_epo_loss))
     print('epoch %d validation loss = %.5f' % (epoch + 1, alpha * val_ssim_loss + val_l2_loss))
-    print('the val psnr is %f dB' % val_psnr)
-    print('the val ssim is %f ' % val_ssim)
     # val=["EPOCH", "L2_LOSS", "SSIM_LOSS", "LOSS", "PSNR", "SSIM", "LR"]
     # (sheet, data_type, line, epoch, itr, l2_loss, ssim_loss, loss, psnr, ssim, lr)
     excel_val_line = write_excel(sheet=sheet_val,
@@ -159,8 +148,6 @@ for epoch in range(EPOCH):
                                  l2_loss=val_l2_loss,
                                  ssim_loss=val_ssim_loss,
                                  loss=alpha * val_ssim_loss,
-                                 psnr=val_psnr,
-                                 ssim=val_ssim,
                                  lr=LR * (0.90 ** (itr // itr_to_lr)))
     f.save(excel_save)
     # if alpha * val_ssim_loss + val_l2_loss < min_loss:

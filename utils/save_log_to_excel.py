@@ -12,7 +12,7 @@ def set_style(name, height, bold=False):
     return style
 
 
-def write_excel(sheet, data_type, line, epoch, itr, l2_loss, ssim_loss, loss, psnr, ssim, lr):
+def write_excel(sheet, data_type, line, epoch, itr, l2_loss, ssim_loss, loss, lr):
     # 在train页中保留train的数据，在validation页中保留validation的数据
     # 通过excel保存训练结果（训练集验证集loss，学习率，训练时间，总训练时间]
     """
@@ -24,8 +24,6 @@ def write_excel(sheet, data_type, line, epoch, itr, l2_loss, ssim_loss, loss, ps
     :param l2_loss:
     :param ssim_loss:
     :param loss:
-    :param psnr:
-    :param ssim:
     :param lr:
     :return:
     train=["EPOCH", "ITR", "L2_LOSS", "SSIM_LOSS", "LOSS", "LR"]
@@ -43,9 +41,7 @@ def write_excel(sheet, data_type, line, epoch, itr, l2_loss, ssim_loss, loss, ps
         sheet.write(line, 1, round(l2_loss, 3))
         sheet.write(line, 2, round(ssim_loss, 3))
         sheet.write(line, 3, round(loss, 3))
-        sheet.write(line, 4, round(psnr, 3))
-        sheet.write(line, 5, round(ssim, 3))
-        sheet.write(line, 6, lr)
+        sheet.write(line, 4, lr)
     return line + 1
 
 
