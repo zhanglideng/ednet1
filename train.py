@@ -22,12 +22,11 @@ excel_val_line = 1  # val_excel写入的行的下标
 alpha = 1  # 损失函数的权重
 accumulation_steps = 1  # 梯度积累的次数，类似于batch-size=64
 itr_to_lr = 10000 // BATCH_SIZE  # 训练10000次后损失下降50%
-itr_to_excel = 64 // BATCH_SIZE  # 训练64次后保存相关数据到excel
-train_path = './data/train/'  # 训练集的路径
-validation_path = './data/val/'  # 验证集的路径
+itr_to_excel = 1024 // BATCH_SIZE  # 训练64次后保存相关数据到excel
+train_path = '/input/data/coco/train/'  # 训练集的路径
+validation_path = '/input/data/coco/val/'  # 验证集的路径
 save_path = './checkpoints/best_cnn_model.pt'  # 保存模型的路径
 excel_save = './result.xls'  # 保存excel的路径
-loss_select = 'ssim'
 
 
 def adjust_learning_rate(op, i):
@@ -39,19 +38,12 @@ def adjust_learning_rate(op, i):
 
 # 初始化excel
 f, sheet_train, sheet_val = init_excel()
-# 加载模型
-# if not os.path.exists(save_path):
 net = CNN(64)
-# else:
-#    net = torch.load(save_path)
 net = net.cuda()
 
 print(net)
-# print(net.named_parameters())
 # 数据转换模式
 transform = transforms.Compose([transforms.ToTensor()])
-# transform = transforms.Compose(
-#    [transforms.ToTensor(), transforms.Normalize(mean=[0.489, 0.490, 0.491], std=[0.312, 0.312, 0.312])])
 # 读取训练集数据
 train_data = EdDataSet(transform, train_path, batch_size=BATCH_SIZE)
 train_data_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
@@ -84,8 +76,7 @@ for epoch in range(EPOCH):
         output_image, scene_feature = net(input_image)
         l2 = l2_loss(output_image, gt_image)
         ssim = ssim_loss(output_image, gt_image)
-        loss = ssim
-        print(ssim.item())
+        loss = ssim + l2
         l2_loss_excel += l2.item()
         ssim_loss_excel += ssim.item()
         loss.backward()
@@ -114,7 +105,7 @@ for epoch in range(EPOCH):
                                            itr=itr,
                                            l2_loss=l2_loss_excel / itr_to_excel,
                                            ssim_loss=ssim_loss_excel / itr_to_excel,
-                                           loss=(alpha * ssim_loss_excel + l2_loss_excel) / itr_to_excel,
+                                           loss=(ssim_loss_excel + l2_loss_excel) / itr_to_excel,
                                            lr=LR * (0.90 ** (itr // itr_to_lr)))
             f.save(excel_save)
             l2_loss_excel = 0
@@ -147,12 +138,12 @@ for epoch in range(EPOCH):
                                  itr=False,
                                  l2_loss=val_l2_loss,
                                  ssim_loss=val_ssim_loss,
-                                 loss=alpha * val_ssim_loss,
+                                 loss=val_ssim_loss + val_l2_loss,
                                  lr=LR * (0.90 ** (itr // itr_to_lr)))
     f.save(excel_save)
     # if alpha * val_ssim_loss + val_l2_loss < min_loss:
-    if alpha * val_ssim_loss < min_loss:
-        min_loss = alpha * val_ssim_loss
+    if val_ssim_loss + val_l2_loss < min_loss:
+        min_loss = val_ssim_loss + val_l2_loss
         min_epoch = epoch
         torch.save(net, save_path)
         print('saving the epoch %d model with %.5f' % (epoch + 1, min_loss))
