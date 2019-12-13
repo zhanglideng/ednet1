@@ -75,7 +75,7 @@ for epoch in range(EPOCH):
     validation_epo_loss = 0
     l2_loss_excel = 0
     ssim_loss_excel = 0
-    net.train()
+    # net.train()
     for input_image, gt_image in train_data_loader:
         index += 1
         itr += 1
@@ -125,7 +125,7 @@ for epoch in range(EPOCH):
     val_ssim_loss = 0
     val_l2_loss = 0
     with torch.no_grad():
-        net.eval()
+        # net.eval()
         for input_image, gt_image in validation_data_loader:
             # input_image = item['input_image']
             input_image = input_image.cuda()
