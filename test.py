@@ -14,8 +14,8 @@ import cv2
 from Res_ED_model import CNN
 import torch
 from utils.loss import *
-from utils.ssim import *
-from utils.PSNR_SSIM import *
+from utils.ms_ssim import *
+
 
 test_path = './cut_test/'
 BATCH_SIZE = 10
