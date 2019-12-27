@@ -7,7 +7,7 @@ import numpy as np
 from utils.loss import *
 from utils.print_time import *
 from utils.save_log_to_excel import *
-from dataloader import EdDataSet
+from dataloader import *
 from Res_ED_model import CNN
 import time
 import xlwt
@@ -15,7 +15,7 @@ from utils.ms_ssim import *
 import os
 
 LR = 0.004  # 学习率
-EPOCH = 20  # 轮次
+EPOCH = 10  # 轮次
 BATCH_SIZE = 8  # 批大小
 excel_train_line = 1  # train_excel写入的行的下标
 excel_val_line = 1  # val_excel写入的行的下标
@@ -68,12 +68,13 @@ for epoch in range(EPOCH):
     l2_loss_excel = 0
     ssim_loss_excel = 0
     # net.train()
-    for input_image, gt_image in train_data_loader:
+    for input_image, gt_image, gt_depth in train_data_loader:
         index += 1
         itr += 1
         input_image = input_image.cuda()
         gt_image = gt_image.cuda()
-        output_image, scene_feature = net(input_image)
+        gt_depth = gt_depth.cuda()
+        output_image, scene_feature = net(input_image, gt_depth)
         l2 = l2_loss(output_image, gt_image)
         ssim = ssim_loss(output_image, gt_image)
         loss = ssim + l2
@@ -117,11 +118,12 @@ for epoch in range(EPOCH):
     val_l2_loss = 0
     with torch.no_grad():
         # net.eval()
-        for input_image, gt_image in validation_data_loader:
+        for input_image, gt_image, gt_depth in validation_data_loader:
             # input_image = item['input_image']
             input_image = input_image.cuda()
             gt_image = gt_image.cuda()
-            output_image, scene_feature = net(input_image)
+            gt_depth = gt_depth.cuda()
+            output_image, scene_feature = net(input_image, gt_depth)
             val_ssim_loss += ssim_loss(output_image, gt_image).item()
             val_l2_loss += l2_loss(output_image, gt_image).item()
     train_epo_loss = train_epo_loss / len(train_data_loader)

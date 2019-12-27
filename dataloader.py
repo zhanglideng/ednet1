@@ -6,19 +6,6 @@ import os
 import cv2
 import scipy.io as sio
 
-"""
->>> a[0]
-'000000000001.jpg'
->>> a[1]
-'000000000016.jpg'
->>> a[2]
-'000000000019.jpg'
->>> a[3]
-'000000000057.jpg'
->>> a[4]
-'000000000063.jpg'
-"""
-
 
 class EdDataSet(Dataset):
     def __init__(self, transform1, path, batch_size):
@@ -41,20 +28,20 @@ class EdDataSet(Dataset):
         image_name = self.data_list[idx]
         # print(image_name)
         image_data = cv2.imread(self.path + '/' + image_name)
-        # print(image_data)
+        # print(image_data.shape)
         # print(image_name)
+        depth_data = np.zeros((400, 400, 1), dtype=np.float32)
         if self.transform:
             input_data = self.transform(image_data)
+            gt_data = self.transform(image_data)
+            depth_data = self.transform(depth_data)
         else:
             input_data = image_data
-        if self.transform:
-            gt_data = self.transform(image_data)
-        else:
             gt_data = image_data
         # item = {'name': image_name, 'input_image': image_data}
         # print(item)
         # print(image_data)
-        return input_data, gt_data
+        return input_data, gt_data, depth_data
 
 
 if __name__ == '__main__':
