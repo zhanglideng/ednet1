@@ -28,13 +28,13 @@ validation_path = '/input/data/coco/val/'  # 验证集的路径
 save_path = './checkpoints/best_cnn_model.pt'  # 保存模型的路径
 excel_save = './result.xls'  # 保存excel的路径
 
-
+'''
 def adjust_learning_rate(op, i):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
     lr = LR * (0.90 ** (i // itr_to_lr))
     for param_group in op.param_groups:
         param_group['lr'] = lr
-
+'''
 
 # 初始化excel
 f, sheet_train, sheet_val = init_excel()
@@ -68,24 +68,27 @@ for epoch in range(EPOCH):
     l2_loss_excel = 0
     ssim_loss_excel = 0
     # net.train()
-    for input_image, gt_image, gt_depth in train_data_loader:
+    for input_image, gt_image, a_image, gt_depth in train_data_loader:
         index += 1
         itr += 1
         input_image = input_image.cuda()
         gt_image = gt_image.cuda()
         gt_depth = gt_depth.cuda()
-        output_image, scene_feature = net(input_image, gt_depth)
+        a_image = a_image.cuda()
+        output_image, scene_feature = net(input_image, a_image, gt_depth)
         l2 = l2_loss(output_image, gt_image)
         ssim = ssim_loss(output_image, gt_image)
         loss = ssim + l2
         l2_loss_excel += l2.item()
+        # print(l2_loss_excel)
         ssim_loss_excel += ssim.item()
+        # print(ssim_loss_excel)
         loss.backward()
         # optimizer.step()
         iter_loss = loss.item()
         train_epo_loss += iter_loss
         loss = loss / accumulation_steps
-        adjust_learning_rate(optimizer, itr)
+        # adjust_learning_rate(optimizer, itr)
         # 3. update parameters of net
         if ((index + 1) % accumulation_steps) == 0:
             # optimizer the net
@@ -118,12 +121,13 @@ for epoch in range(EPOCH):
     val_l2_loss = 0
     with torch.no_grad():
         # net.eval()
-        for input_image, gt_image, gt_depth in validation_data_loader:
+        for input_image, gt_image, a_image, gt_depth in validation_data_loader:
             # input_image = item['input_image']
             input_image = input_image.cuda()
             gt_image = gt_image.cuda()
+            a_image = a_image.cuda()
             gt_depth = gt_depth.cuda()
-            output_image, scene_feature = net(input_image, gt_depth)
+            output_image, scene_feature = net(input_image, a_image, gt_depth)
             val_ssim_loss += ssim_loss(output_image, gt_image).item()
             val_l2_loss += l2_loss(output_image, gt_image).item()
     train_epo_loss = train_epo_loss / len(train_data_loader)
@@ -149,9 +153,4 @@ for epoch in range(EPOCH):
         min_epoch = epoch
         torch.save(net, save_path)
         print('saving the epoch %d model with %.5f' % (epoch + 1, min_loss))
-        # no_update = 0
-        # LR_flag = 0
-    else:
-        print('not improve for epoch %d with %.5f' % (min_epoch, min_loss))
-    print('learning rate is ' + str(LR) + '\n')
 print('Train is Done!')

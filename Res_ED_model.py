@@ -41,9 +41,9 @@ class EnCoder(nn.Module):
     def __init__(self, k):
         super(EnCoder, self).__init__()
         self.k = k
-        self.conv1 = nn.Conv2d(4, 64, kernel_size=5, stride=2, padding=2, bias=False)
-        self.conv2 = nn.Conv2d(65, 128, kernel_size=5, stride=2, padding=2, bias=False)
-        self.conv3 = nn.Conv2d(129, k + 1, kernel_size=5, stride=2, padding=2, bias=False)
+        self.conv1 = nn.Conv2d(5, 64, kernel_size=5, stride=2, padding=2, bias=False)
+        self.conv2 = nn.Conv2d(66, 128, kernel_size=5, stride=2, padding=2, bias=False)
+        self.conv3 = nn.Conv2d(130, k + 1, kernel_size=5, stride=2, padding=2, bias=False)
         self.relu = nn.PReLU()
         self.d_res_block = D_ResBlock()
 
@@ -51,11 +51,14 @@ class EnCoder(nn.Module):
         self.bn128 = nn.BatchNorm2d(128)
         self.bn65 = nn.BatchNorm2d(65)
 
-    def forward(self, x, t):
+    def forward(self, x, a, t):
+        x = torch.cat([x, a], 1)
         x = torch.cat([x, t], 1)
         x = self.relu(self.bn64(self.conv1(x)))
         # print(x.shape)
+        a = F.avg_pool2d(a, 2)
         t = F.avg_pool2d(t, 2)
+        x = torch.cat([x, a], 1)
         x = torch.cat([x, t], 1)
         x = self.relu(self.bn128(self.conv2(x)))
         # print(x.shape)
@@ -67,7 +70,9 @@ class EnCoder(nn.Module):
         x1 = self.d_res_block(x1)
         x1 = x1 + x
         # print(x1.shape)
+        a = F.avg_pool2d(a, 2)
         t = F.avg_pool2d(t, 2)
+        x1 = torch.cat([x1, a], 1)
         x1 = torch.cat([x1, t], 1)
         x2 = self.bn65(self.conv3(x1))
         # print(x2.shape)
@@ -121,7 +126,7 @@ class CNN(nn.Module):
         self.encoder = EnCoder(k)
         self.decoder = DeCoder()
 
-    def forward(self, x, t):
-        x = self.encoder(x, t)
+    def forward(self, x, a, t):
+        x = self.encoder(x, a, t)
         x1 = self.decoder(x)
         return x1, x
