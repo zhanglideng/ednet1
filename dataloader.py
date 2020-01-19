@@ -30,8 +30,8 @@ class EdDataSet(Dataset):
         image_data = cv2.imread(self.path + '/' + image_name)
         # print(image_data.shape)
         # print(image_name)
-        depth_data = np.ones((400, 400, 1), dtype=np.float32)
-        a_data = np.ones((400, 400, 1), dtype=np.float32)
+        depth_data = np.ones((400, 400, 1), dtype=np.float32) * 255
+        a_data = np.ones((400, 400, 1), dtype=np.float32) * 255
         if self.transform:
             input_data = self.transform(image_data)
             gt_data = self.transform(image_data)
