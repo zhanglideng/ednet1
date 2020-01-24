@@ -18,6 +18,31 @@ class EdDataSet(Dataset):
         self.data_list = os.listdir(path)
         self.data_list.sort(key=lambda x: int(x[:-4]))
 
+    @staticmethod
+    def random_flip(data):
+        """
+        new_im = transforms.RandomHorizontalFlip(p=0.5)(im)  # p表示概率 水平翻转
+
+        # 90度，180度，270度旋转
+
+        transforms.RandomApply(transforms, p=0.5)
+        功能：给一个transform加上概率，以一定的概率执行该操作
+
+        8.随机旋转：transforms.RandomRotation
+        class torchvision.transforms.RandomRotation(degrees, resample=False, expand=False, center=None)
+        功能：依degrees随机旋转一定角度
+        参数：
+        degress- (sequence or float or int) ，若为单个数，如 30，则表示在（-30，+30）之间随机旋转
+        若为sequence，如(30，60)，则表示在30-60度之间随机旋转
+        """
+        flip = random.randint(0, 1)
+        rotate = random.randint(0, 3)
+        for i in range(len(data)):
+            if flip == 0:
+                data[i] = transforms.RandomHorizontalFlip(p=1)(data[i])
+            data[i] = transforms.RandomRotation(rotate * 90)(data[i])
+        return data
+
     def __len__(self):
         return len(os.listdir(self.path))
 
@@ -43,7 +68,7 @@ class EdDataSet(Dataset):
         # item = {'name': image_name, 'input_image': image_data}
         # print(item)
         # print(image_data)
-        return input_data, gt_data, a_data, depth_data
+        return random_flip([input_data, gt_data, a_data, depth_data])
 
 
 if __name__ == '__main__':
