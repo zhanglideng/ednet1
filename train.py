@@ -23,8 +23,8 @@ alpha = 1  # 损失函数的权重
 accumulation_steps = 1  # 梯度积累的次数，类似于batch-size=64
 itr_to_lr = 10000 // BATCH_SIZE  # 训练10000次后损失下降50%
 itr_to_excel = 1024 // BATCH_SIZE  # 训练64次后保存相关数据到excel
-train_path = '/home/aistudio/work/data/coco/train/'  # 训练集的路径
-validation_path = '/home/aistudio/work/data/coco/val/'  # 验证集的路径
+train_path = '/home/aistudio/data/data20016/coco/train/'  # 训练集的路径
+validation_path = '/home/aistudio/data/data20016/coco/val/'  # 验证集的路径
 save_path = './checkpoints/best_cnn_model.pt'  # 保存模型的路径
 excel_save = './result.xls'  # 保存excel的路径
 
