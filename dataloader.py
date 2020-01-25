@@ -5,6 +5,8 @@ import pickle
 import os
 import cv2
 import scipy.io as sio
+import random
+from PIL import Image
 
 
 class EdDataSet(Dataset):
@@ -18,8 +20,11 @@ class EdDataSet(Dataset):
         self.data_list = os.listdir(path)
         self.data_list.sort(key=lambda x: int(x[:-4]))
 
+    def __len__(self):
+        return len(os.listdir(self.path))
+
     @staticmethod
-    def random_flip(data):
+    def random_flip(image):
         """
         new_im = transforms.RandomHorizontalFlip(p=0.5)(im)  # p表示概率 水平翻转
 
@@ -35,16 +40,10 @@ class EdDataSet(Dataset):
         degress- (sequence or float or int) ，若为单个数，如 30，则表示在（-30，+30）之间随机旋转
         若为sequence，如(30，60)，则表示在30-60度之间随机旋转
         """
-        flip = random.randint(0, 1)
         rotate = random.randint(0, 3)
-        for i in range(len(data)):
-            if flip == 0:
-                data[i] = transforms.RandomHorizontalFlip(p=1)(data[i])
-            data[i] = transforms.RandomRotation(rotate * 90)(data[i])
-        return data
-
-    def __len__(self):
-        return len(os.listdir(self.path))
+        image = transforms.RandomHorizontalFlip()(image)
+        image = transforms.RandomRotation(rotate * 90)(image)
+        return image
 
     def __getitem__(self, idx):
         """
@@ -52,14 +51,14 @@ class EdDataSet(Dataset):
         """
         image_name = self.data_list[idx]
         # print(image_name)
-        image_data = cv2.imread(self.path + '/' + image_name)
+        image_data = Image.open(self.path + '/' + image_name)
         # print(image_data.shape)
         # print(image_name)
-        depth_data = np.ones((400, 400, 1), dtype=np.float32) * 255
-        a_data = np.ones((400, 400, 1), dtype=np.float32) * 255
+        depth_data = np.ones((400, 400, 1), dtype=np.float32)
+        a_data = np.ones((400, 400, 1), dtype=np.float32)
         if self.transform:
-            input_data = self.transform(image_data)
-            gt_data = self.transform(image_data)
+            input_data = self.transform(self.random_flip(image_data))
+            gt_data = self.transform(self.random_flip(image_data))
             a_data = self.transform(a_data)
             depth_data = self.transform(depth_data)
         else:
@@ -68,7 +67,7 @@ class EdDataSet(Dataset):
         # item = {'name': image_name, 'input_image': image_data}
         # print(item)
         # print(image_data)
-        return random_flip([input_data, gt_data, a_data, depth_data])
+        return input_data, gt_data, a_data, depth_data
 
 
 if __name__ == '__main__':

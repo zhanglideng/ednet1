@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+import sys
+sys.path.append('/home/aistudio/external-libraries')
 import torch
 from torchvision import transforms
 from torch.utils.data import DataLoader
@@ -23,8 +24,8 @@ alpha = 1  # 损失函数的权重
 accumulation_steps = 1  # 梯度积累的次数，类似于batch-size=64
 itr_to_lr = 10000 // BATCH_SIZE  # 训练10000次后损失下降50%
 itr_to_excel = 1024 // BATCH_SIZE  # 训练64次后保存相关数据到excel
-train_path = '/home/aistudio/data/data20016/coco/train/'  # 训练集的路径
-validation_path = '/home/aistudio/data/data20016/coco/val/'  # 验证集的路径
+train_path = '/home/aistudio/data/data20016/cut_coco/train/'  # 训练集的路径
+validation_path = '/home/aistudio/data/data20016/cut_coco/val/'  # 验证集的路径
 save_path = './checkpoints/best_cnn_model.pt'  # 保存模型的路径
 excel_save = './result.xls'  # 保存excel的路径
 
@@ -46,11 +47,11 @@ print(net)
 transform = transforms.Compose([transforms.ToTensor()])
 # 读取训练集数据
 train_data = EdDataSet(transform, train_path, batch_size=BATCH_SIZE)
-train_data_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
+train_data_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
 # 读取验证集数据
 validation_data = EdDataSet(transform, validation_path, batch_size=BATCH_SIZE)
-validation_data_loader = DataLoader(validation_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
+validation_data_loader = DataLoader(validation_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
 # 定义优化器
 optimizer = torch.optim.Adam(net.parameters(), lr=LR, weight_decay=1e-5)
