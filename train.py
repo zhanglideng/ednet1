@@ -16,7 +16,7 @@ from utils.ms_ssim import *
 import os
 
 LR = 0.004  # 学习率
-EPOCH = 10  # 轮次
+EPOCH = 20  # 轮次
 BATCH_SIZE = 16  # 批大小
 excel_train_line = 1  # train_excel写入的行的下标
 excel_val_line = 1  # val_excel写入的行的下标
@@ -83,7 +83,7 @@ for epoch in range(EPOCH):
         l2_loss_excel += l2.item()
         # print(l2_loss_excel)
         ssim_loss_excel += ssim.item()
-        # print(ssim_loss_excel)
+        # print(ssim.item())
         loss.backward()
         # optimizer.step()
         iter_loss = loss.item()

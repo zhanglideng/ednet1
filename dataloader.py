@@ -57,8 +57,8 @@ class EdDataSet(Dataset):
         depth_data = np.ones((400, 400, 1), dtype=np.float32)
         a_data = np.ones((400, 400, 1), dtype=np.float32)
         if self.transform:
-            input_data = self.transform(self.random_flip(image_data))
-            gt_data = self.transform(self.random_flip(image_data))
+            input_data = self.transform(image_data)
+            gt_data = self.transform(image_data)
             a_data = self.transform(a_data)
             depth_data = self.transform(depth_data)
         else:
