@@ -19,9 +19,10 @@ class EdDataSet(Dataset):
         self.path = path
         self.data_list = os.listdir(path)
         self.data_list.sort(key=lambda x: int(x[:-4]))
+        self.length = len(os.listdir(self.haze_path))
 
     def __len__(self):
-        return len(os.listdir(self.path))
+        return self.length
 
     @staticmethod
     def random_flip(image):
@@ -54,8 +55,8 @@ class EdDataSet(Dataset):
         image_data = Image.open(self.path + '/' + image_name)
         # print(image_data.shape)
         # print(image_name)
-        depth_data = np.ones((400, 400, 1), dtype=np.float32)
-        a_data = np.ones((400, 400, 1), dtype=np.float32)
+        depth_data = np.ones((400, 400, 1), dtype=np.float32) * 255
+        a_data = np.ones((400, 400, 1), dtype=np.float32) * 255
         if self.transform:
             input_data = self.transform(image_data)
             gt_data = self.transform(image_data)
