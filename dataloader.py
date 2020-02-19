@@ -19,7 +19,7 @@ class EdDataSet(Dataset):
         self.path = path
         self.data_list = os.listdir(path)
         self.data_list.sort(key=lambda x: int(x[:-4]))
-        self.length = len(os.listdir(self.haze_path))
+        self.length = len(os.listdir(self.path))
 
     def __len__(self):
         return self.length
