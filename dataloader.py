@@ -55,20 +55,19 @@ class EdDataSet(Dataset):
         image_data = Image.open(self.path + '/' + image_name)
         # print(image_data.shape)
         # print(image_name)
-        depth_data = np.ones((400, 400, 1), dtype=np.float32) * 255
+        t_data = np.ones((400, 400, 1), dtype=np.float32) * 255
+        # 测一下这里会被归一化吗
         a_data = np.ones((400, 400, 1), dtype=np.float32) * 255
         if self.transform:
             input_data = self.transform(image_data)
             gt_data = self.transform(image_data)
             a_data = self.transform(a_data)
-            depth_data = self.transform(depth_data)
+            t_data = self.transform(t_data)
         else:
             input_data = image_data
             gt_data = image_data
-        # item = {'name': image_name, 'input_image': image_data}
-        # print(item)
-        # print(image_data)
-        return input_data, gt_data, a_data, depth_data
+        print(t_data)
+        return input_data, gt_data, a_data, t_data
 
 
 if __name__ == '__main__':

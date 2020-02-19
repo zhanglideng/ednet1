@@ -126,7 +126,8 @@ class CNN(nn.Module):
         self.encoder = EnCoder(k)
         self.decoder = DeCoder()
 
-    def forward(self, x, a, t):
+    def forward(self, x, a, t1):
+        t = 1 - t1
         x = self.encoder(x, a, t)
         x1 = self.decoder(x)
         return x1, x
