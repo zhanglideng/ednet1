@@ -41,9 +41,9 @@ class EnCoder(nn.Module):
     def __init__(self, k):
         super(EnCoder, self).__init__()
         self.k = k
-        self.conv1 = nn.Conv2d(5, 64, kernel_size=5, stride=2, padding=2, bias=False)
-        self.conv2 = nn.Conv2d(66, 128, kernel_size=5, stride=2, padding=2, bias=False)
-        self.conv3 = nn.Conv2d(130, k + 1, kernel_size=5, stride=2, padding=2, bias=False)
+        self.conv1 = nn.Conv2d(7, 64, kernel_size=5, stride=2, padding=2, bias=False)
+        self.conv2 = nn.Conv2d(68, 128, kernel_size=5, stride=2, padding=2, bias=False)
+        self.conv3 = nn.Conv2d(132, k + 1, kernel_size=5, stride=2, padding=2, bias=False)
         self.relu = nn.PReLU()
         self.d_res_block = D_ResBlock()
 

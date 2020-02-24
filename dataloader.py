@@ -57,7 +57,7 @@ class EdDataSet(Dataset):
         # print(image_name)
         t_data = np.ones((400, 400, 1), dtype=np.float32) * 255
         # 测一下这里会被归一化吗
-        a_data = np.ones((400, 400, 1), dtype=np.float32) * 255
+        a_data = np.ones((400, 400, 3), dtype=np.float32) * 255
         if self.transform:
             input_data = self.transform(image_data)
             gt_data = self.transform(image_data)
@@ -66,7 +66,6 @@ class EdDataSet(Dataset):
         else:
             input_data = image_data
             gt_data = image_data
-        print(t_data)
         return input_data, gt_data, a_data, t_data
 
 
