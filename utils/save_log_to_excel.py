@@ -12,7 +12,7 @@ def set_style(name, height, bold=False):
     return style
 
 
-def write_excel(sheet, data_type, line, epoch, itr, l2_loss, ssim_loss, loss, lr):
+def write_excel(sheet, data_type, line, epoch, itr, loss, weight):
     # 在train页中保留train的数据，在validation页中保留validation的数据
     # 通过excel保存训练结果（训练集验证集loss，学习率，训练时间，总训练时间]
     """
@@ -29,19 +29,24 @@ def write_excel(sheet, data_type, line, epoch, itr, l2_loss, ssim_loss, loss, lr
     train=["EPOCH", "ITR", "L2_LOSS", "SSIM_LOSS", "LOSS", "LR"]
     val=["EPOCH", "L2_LOSS", "SSIM_LOSS", "LOSS", "PSNR", "SSIM", "LR"]
     """
+    sum_loss = 0
     if data_type == 'train':
         sheet.write(line, 0, epoch + 1)
         sheet.write(line, 1, itr + 1)
-        sheet.write(line, 2, round(l2_loss, 3))
-        sheet.write(line, 3, round(ssim_loss, 3))
-        sheet.write(line, 4, round(loss, 3))
-        sheet.write(line, 5, lr)
+        for i in range(2):
+            sheet.write(line, i + 2, round(loss[i], 4))
+            sum_loss += loss[i] * weight[i]
+        sheet.write(line, 4, round(sum_loss, 4))
     else:
-        sheet.write(line, 0, epoch + 1)
-        sheet.write(line, 1, round(l2_loss, 3))
-        sheet.write(line, 2, round(ssim_loss, 3))
-        sheet.write(line, 3, round(loss, 3))
-        sheet.write(line, 4, lr)
+        if len(loss) > 1:
+            sheet.write(line, 0, epoch + 1)
+            for i in range(2):
+                sheet.write(line, i + 1, round(loss[i], 4))
+                sum_loss += loss[i] * weight[i]
+            sheet.write(line, 3, round(sum_loss, 4))
+        else:
+            sheet.write(line, 0, epoch + 1)
+            sheet.write(line, 1, round(loss, 4))
     return line + 1
 
 

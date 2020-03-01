@@ -10,12 +10,9 @@ from PIL import Image
 
 
 class EdDataSet(Dataset):
-    def __init__(self, transform1, path, batch_size):
+    def __init__(self, transform1, path):
         print(path)
         self.transform = transform1
-        self.batch_size = batch_size
-        # self.transform2 = transform2
-        # 读取无雾图
         self.path = path
         self.data_list = os.listdir(path)
         self.data_list.sort(key=lambda x: int(x[:-4]))
@@ -66,7 +63,9 @@ class EdDataSet(Dataset):
         else:
             input_data = image_data
             gt_data = image_data
-        return input_data, gt_data, a_data, t_data
+        # print(input_data)
+        # print(gt_data)
+        return input_data.cuda(), gt_data.cuda(), a_data.cuda(), t_data.cuda()
 
 
 if __name__ == '__main__':

@@ -15,11 +15,14 @@ class ResBlock(nn.Module):
         self.bn = nn.BatchNorm2d(128)
         # inplace啥意思？
         self.relu = nn.PReLU()
+        # self.relu = nn.Tanh()
 
     def forward(self, x):
         output = self.bn(self.conv(x))
+        # output = self.conv(x)
         output = self.relu(output)
         output = self.bn(self.conv(output))
+        # output = self.conv(output)
         output = output + x
         return output
 
@@ -45,6 +48,7 @@ class EnCoder(nn.Module):
         self.conv2 = nn.Conv2d(68, 128, kernel_size=5, stride=2, padding=2, bias=False)
         self.conv3 = nn.Conv2d(132, k + 1, kernel_size=5, stride=2, padding=2, bias=False)
         self.relu = nn.PReLU()
+        # self.relu = nn.Tanh()
         self.d_res_block = D_ResBlock()
 
         self.bn64 = nn.BatchNorm2d(64)
@@ -55,12 +59,14 @@ class EnCoder(nn.Module):
         x = torch.cat([x, a], 1)
         x = torch.cat([x, t], 1)
         x = self.relu(self.bn64(self.conv1(x)))
+        # x = self.relu(self.conv1(x))
         # print(x.shape)
         a = F.avg_pool2d(a, 2)
         t = F.avg_pool2d(t, 2)
         x = torch.cat([x, a], 1)
         x = torch.cat([x, t], 1)
         x = self.relu(self.bn128(self.conv2(x)))
+        # x = self.relu(self.conv2(x))
         # print(x.shape)
         x1 = self.d_res_block(x)
         # print(x1.shape)
@@ -75,6 +81,7 @@ class EnCoder(nn.Module):
         x1 = torch.cat([x1, a], 1)
         x1 = torch.cat([x1, t], 1)
         x2 = self.bn65(self.conv3(x1))
+        # x2 = self.conv3(x1)
         # print(x2.shape)
         indices_map = torch.LongTensor([self.k]).cuda()
         indices_feature = torch.LongTensor([i for i in range(self.k)]).cuda()
@@ -92,11 +99,12 @@ class DeCoder(nn.Module):
     def __init__(self):
         super(DeCoder, self).__init__()
         self.relu = nn.PReLU()
+        # self.relu = nn.Tanh()
         self.d_res_block = D_ResBlock()
         self.deconv1 = nn.ConvTranspose2d(64, 128, 3, stride=2, padding=1, dilation=1, output_padding=1)
         self.deconv2 = nn.ConvTranspose2d(128, 64, 5, stride=2, padding=2, dilation=1, output_padding=1)
         self.deconv3 = nn.ConvTranspose2d(64, 3, 5, stride=2, padding=2, dilation=1, output_padding=1)
-
+        # self.sig = nn.Sigmoid()
         self.bn64 = nn.BatchNorm2d(64)
         self.bn128 = nn.BatchNorm2d(128)
         self.bn3 = nn.BatchNorm2d(3)
@@ -104,6 +112,7 @@ class DeCoder(nn.Module):
     def forward(self, x2):
         # 解码器部分
         x2 = self.relu(self.bn128(self.deconv1(x2)))
+        # x2 = self.relu(self.deconv1(x2))
         # print(x2.shape)
         x3 = self.d_res_block(x2)
         # print(x3.shape)
@@ -114,9 +123,12 @@ class DeCoder(nn.Module):
         x3 = x3 + x2
         # print(x3.shape)
         x3 = self.relu(self.bn64(self.deconv2(x3)))
+        # x3 = self.relu(self.deconv2(x3))
         # print(x3.shape)
         x3 = self.bn3(self.deconv3(x3))
+        # x3 = self.deconv3(x3)
         # print(x3.shape)
+        # x3 = self.sig(x3)
         return x3
 
 

@@ -4,6 +4,7 @@
       <w>conv</w>
       <w>deconv</w>
       <w>dehazy</w>
+      <w>ednet</w>
       <w>maxpool</w>
       <w>nepoch</w>
       <w>psnr</w>
