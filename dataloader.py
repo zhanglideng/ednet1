@@ -63,8 +63,8 @@ class EdDataSet(Dataset):
         else:
             input_data = image_data
             gt_data = image_data
-        # print(input_data)
-        # print(gt_data)
+        print(t_data)
+        print(a_data)
         return input_data.cuda(), gt_data.cuda(), a_data.cuda(), t_data.cuda()
 
 

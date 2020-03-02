@@ -19,7 +19,7 @@ import os
 
 LR = 0.004  # 学习率
 EPOCH = 40  # 轮次
-BATCH_SIZE = 32  # 批大小
+BATCH_SIZE = 16  # 批大小
 excel_train_line = 1  # train_excel写入的行的下标
 excel_val_line = 1  # val_excel写入的行的下标
 weight = [1, 1]  # 损失函数的权重
@@ -27,8 +27,9 @@ loss_num = 2  # 损失函数的数量
 accumulation_steps = 1  # 梯度积累的次数，类似于batch-size=64
 itr_to_lr = 10000 // BATCH_SIZE  # 训练10000次后损失下降50%
 itr_to_excel = 1024 // BATCH_SIZE  # 训练64次后保存相关数据到excel
-train_path = '/home/aistudio/data/data20016/cut_coco/train/'  # 训练集的路径
-val_path = '/home/aistudio/data/data20016/cut_coco/val/'  # 验证集的路径
+is_mini = 'mini_'
+train_path = '/home/aistudio/data/data20016/cut_coco/'+is_mini+'train/'  # 训练集的路径
+val_path = '/home/aistudio/data/data20016/cut_coco/'+is_mini+'val/'  # 验证集的路径
 save_path = './result_ednet_' + time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime()) + '/'
 excel_save = save_path + 'result.xls'  # 保存excel的路径
 save_model = save_path + 'model.pt'
@@ -108,6 +109,7 @@ for epoch in range(EPOCH):
             loss_image = [output_image, gt_image]
             loss, temp_loss = loss_function(loss_image, weight)
             val_loss += loss.item()
+            print(temp_loss)
             for i in range(len(temp_loss)):
                 loss_excel[i] = loss_excel[i] + temp_loss[i]
     loss_excel = [loss_excel[i] / len(val_data_loader) for i in range(len(loss_excel))]

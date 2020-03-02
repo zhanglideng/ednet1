@@ -13,6 +13,19 @@ def ssim_loss(input_image, output_image):
     return (1 - losser(input_image, output_image)) * 100
 
 
+def color_loss(input_image, output_image):
+    vec1 = input_image.view([-1, 3])
+    vec2 = output_image.view([-1, 3])
+    clip_value = 0.999999
+    norm_vec1 = torch.nn.functional.normalize(vec1)
+    norm_vec2 = torch.nn.functional.normalize(vec2)
+    dot = norm_vec1 * norm_vec2
+    dot = dot.mean(dim=1)
+    dot = torch.clamp(dot, -clip_value, clip_value)
+    angle = torch.acos(dot) * (180 / math.pi)
+    return angle.mean()
+
+
 def loss_function(image, weight):
     output, gt = image
     loss_train = [l2_loss(gt, output),
