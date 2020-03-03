@@ -17,7 +17,7 @@ import xlwt
 from utils.ms_ssim import *
 import os
 
-LR = 0.004  # 学习率
+LR = 0.001  # 学习率
 EPOCH = 40  # 轮次
 BATCH_SIZE = 16  # 批大小
 excel_train_line = 1  # train_excel写入的行的下标
@@ -27,9 +27,9 @@ loss_num = 2  # 损失函数的数量
 accumulation_steps = 1  # 梯度积累的次数，类似于batch-size=64
 itr_to_lr = 10000 // BATCH_SIZE  # 训练10000次后损失下降50%
 itr_to_excel = 1024 // BATCH_SIZE  # 训练64次后保存相关数据到excel
-is_mini = 'mini_'
-train_path = '/home/aistudio/data/data20016/cut_coco/'+is_mini+'train/'  # 训练集的路径
-val_path = '/home/aistudio/data/data20016/cut_coco/'+is_mini+'val/'  # 验证集的路径
+dataset_size = ''
+train_path = '/home/aistudio/data/data20016/cut_coco/' + dataset_size + 'train/'  # 训练集的路径
+val_path = '/home/aistudio/data/data20016/cut_coco/' + dataset_size + 'val/'  # 验证集的路径
 save_path = './result_ednet_' + time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime()) + '/'
 excel_save = save_path + 'result.xls'  # 保存excel的路径
 save_model = save_path + 'model.pt'
@@ -75,6 +75,7 @@ for epoch in range(EPOCH):
         loss_image = [output_image, gt_image]
         loss, temp_loss = loss_function(loss_image, weight)
         train_loss += loss.item()
+        print(temp_loss)
         for i in range(len(temp_loss)):
             loss_excel[i] = loss_excel[i] + temp_loss[i]
         loss = loss / accumulation_steps
@@ -104,6 +105,7 @@ for epoch in range(EPOCH):
     loss_excel = [0] * loss_num
     with torch.no_grad():
         net.eval()
+        print('\nstart val!')
         for input_image, gt_image, a_image, gt_depth in val_data_loader:
             output_image, scene_feature = net(input_image, a_image, gt_depth)
             loss_image = [output_image, gt_image]
@@ -122,19 +124,12 @@ for epoch in range(EPOCH):
                                  line=excel_val_line,
                                  epoch=epoch,
                                  itr=False,
-                                 loss=train_loss,
+                                 loss=[loss_excel, val_loss, train_loss],
                                  weight=False)
-    excel_val_line = write_excel(sheet=sheet_val,
-                                 data_type='val',
-                                 line=excel_val_line,
-                                 epoch=epoch,
-                                 itr=False,
-                                 loss=loss_excel,
-                                 weight=weight)
     f.save(excel_save)
     if val_loss < min_loss:
         min_loss = val_loss
         min_epoch = epoch
-        torch.save(net, save_path)
+        torch.save(net, save_model)
         print('saving the epoch %d model with %.5f' % (epoch + 1, min_loss))
 print('Train is Done!')

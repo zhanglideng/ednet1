@@ -2,6 +2,7 @@
   <dictionary name="random">
     <words>
       <w>conv</w>
+      <w>dataset</w>
       <w>deconv</w>
       <w>dehazy</w>
       <w>ednet</w>
